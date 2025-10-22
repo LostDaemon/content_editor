@@ -42,6 +42,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
         options.Password.RequireUppercase = false;
         options.Password.RequireLowercase = false;
         options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = false;
+        options.SignIn.RequireConfirmedPhoneNumber = false;
+        options.Tokens.ProviderMap.Clear();
     })
     .AddSignInManager()
     .AddDefaultTokenProviders();

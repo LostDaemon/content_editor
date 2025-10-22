@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace UniversalContentEditor.Data
 {
-    public class MongoUserStore : IUserStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>, IUserEmailStore<ApplicationUser>
+    public class MongoUserStore : IUserStore<ApplicationUser>, IUserPasswordStore<ApplicationUser>, IUserEmailStore<ApplicationUser>, IUserPhoneNumberStore<ApplicationUser>
     {
         private readonly IMongoCollection<ApplicationUser> _users;
 
@@ -119,6 +119,28 @@ namespace UniversalContentEditor.Data
         public Task SetNormalizedEmailAsync(ApplicationUser user, string? normalizedEmail, CancellationToken cancellationToken = default)
         {
             user.NormalizedEmail = normalizedEmail;
+            return Task.CompletedTask;
+        }
+
+        public Task<string?> GetPhoneNumberAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(user.PhoneNumber);
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(user.PhoneNumberConfirmed);
+        }
+
+        public Task SetPhoneNumberAsync(ApplicationUser user, string? phoneNumber, CancellationToken cancellationToken = default)
+        {
+            user.PhoneNumber = phoneNumber;
+            return Task.CompletedTask;
+        }
+
+        public Task SetPhoneNumberConfirmedAsync(ApplicationUser user, bool confirmed, CancellationToken cancellationToken = default)
+        {
+            user.PhoneNumberConfirmed = confirmed;
             return Task.CompletedTask;
         }
 
