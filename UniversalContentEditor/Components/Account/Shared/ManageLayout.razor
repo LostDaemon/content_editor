@@ -6,12 +6,24 @@
 <div>
     <h2>Change your account settings</h2>
     <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <ManageNavMenu />
-        </div>
-        <div class="col-md-9">
-            @Body
-        </div>
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">
+                Profile
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="Account/Manage/Email">
+                Email
+            </NavLink>
+        </li>
+        <li class="nav-item">
+            <NavLink class="nav-link" href="Account/Manage/ChangePassword">
+                Password
+            </NavLink>
+        </li>
+    </ul>
+    <div>
+        @Body
     </div>
 </div>

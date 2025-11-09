@@ -71,19 +71,19 @@ else
                         <DataAnnotationsValidator />
                         <div class="mb-3">
                             <label class="form-label">Id</label>
-                            <InputText class="form-control" @bind-Value="selectedUser.Id" disabled />
+                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Id" disabled />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">User Name</label>
-                            <InputText class="form-control" @bind-Value="selectedUser.UserName" />
+                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.UserName" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <InputText class="form-control" @bind-Value="selectedUser.Email" />
+                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Email" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Role</label>
-                            <InputSelect class="form-select" @bind-Value="selectedUser.Role">
+                            <InputSelect class="form-select form-select-sm" @bind-Value="selectedUser.Role">
                                 <option value="">None</option>
                                 <option value="@UserRole.Reader">@UserRole.Reader</option>
                                 <option value="@UserRole.Contributor">@UserRole.Contributor</option>
@@ -91,7 +91,7 @@ else
                             </InputSelect>
                         </div>
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
                         </div>
                     </EditForm>
                     <hr />
@@ -100,16 +100,16 @@ else
                         <DataAnnotationsValidator />
                         <div class="mb-3">
                             <label class="form-label">New Password</label>
-                            <InputText type="password" class="form-control" @bind-Value="passwordModel.NewPassword" />
+                            <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.NewPassword" />
                             <ValidationMessage For="() => passwordModel.NewPassword" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Confirm Password</label>
-                            <InputText type="password" class="form-control" @bind-Value="passwordModel.ConfirmPassword" />
+                            <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.ConfirmPassword" />
                             <ValidationMessage For="() => passwordModel.ConfirmPassword" />
                         </div>
                         <div class="mb-3">
-                            <button type="submit" class="btn btn-secondary">Change Password</button>
+                            <button type="submit" class="btn btn-secondary btn-sm">Change Password</button>
                         </div>
                     </EditForm>
                 }
