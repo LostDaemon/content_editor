@@ -13,13 +13,140 @@ h5 {
     margin-bottom: 0.5rem;
 }
 
+.user-admin-container {
+    height: calc(100vh - 200px);
+    gap: 10px;
+}
+
+.user-admin-container > .col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #002b36;
+    padding: 1rem;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3), 4px 0 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border-right: 1px solid rgba(253, 106, 2, 0.2);
+}
+
+
+.table-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .table {
     font-size: 0.875rem;
+    margin-bottom: 0;
 }
 
 .table th,
 .table td {
     padding: 0.4rem;
+}
+
+.table-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.table-row:hover {
+    background-color: rgba(253, 106, 2, 0.1) !important;
+}
+
+.table-row-selected {
+    background-color: rgba(253, 106, 2, 0.1) !important;
+    border-left: 3px solid #fd7e14;
+}
+
+.table-row-selected td {
+    background-color: rgba(253, 106, 2, 0.1) !important;
+}
+
+.table-row-selected:hover {
+    background-color: rgba(253, 106, 2, 0.15) !important;
+}
+
+.table-row-selected:hover td {
+    background-color: rgba(253, 106, 2, 0.15) !important;
+}
+
+.edit-container {
+    width: 500px;
+    flex-shrink: 0;
+    padding-right: 0 !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.edit-container > div {
+    width: 500px;
+    margin-left: auto;
+    height: 100%;
+    background-color: #002b36;
+    padding: 1rem;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3), -4px 0 12px rgba(0, 0, 0, 0.2);
+    border-left: 1px solid rgba(253, 106, 2, 0.2);
+    border-radius: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-container h3 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.user-info {
+    margin-bottom: 1rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #839496;
+}
+
+.user-id {
+    color: #586e75;
+    font-size: 0.875rem;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid rgba(253, 106, 2, 0.2);
+}
+
+.nav-tabs .nav-link {
+    color: #839496;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    padding: 0.5rem 1rem;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #fd7e14;
+    border-bottom-color: rgba(253, 106, 2, 0.3);
+}
+
+.nav-tabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background: transparent;
+}
+
+.tab-content {
+    flex: 1;
+    overflow-y: auto;
 }
 
 .form-label {

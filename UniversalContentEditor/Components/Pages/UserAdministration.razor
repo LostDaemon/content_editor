@@ -35,10 +35,10 @@ else
     }
     else
     {
-    <div class="row">
-        <div class="col-md-9">
+    <div class="row user-admin-container g-0">
+        <div class="col table-section">
             <h3>Users</h3>
-            <div class="table-responsive">
+            <div class="table-responsive table-container">
                 <table class="table">
                     <thead>
                         <tr>
@@ -51,7 +51,7 @@ else
                     <tbody>
                         @foreach (var user in users)
                         {
-                            <tr @onclick="() => SelectUser(user)" style="cursor: pointer; @(selectedUser?.Id == user.Id ? "background-color: #e7f3ff;" : "")">
+                            <tr @onclick="() => SelectUser(user)" class="table-row @(selectedUser?.Id == user.Id ? "table-row-selected" : "")">
                                 <td>@user.Id</td>
                                 <td>@user.UserName</td>
                                 <td>@user.Email</td>
@@ -62,56 +62,77 @@ else
                 </table>
             </div>
         </div>
-        <div class="col-md-3">
-            <div style="max-width: 300px;">
+        <div class="col-auto edit-container">
+            <div>
                 <h3>Edit User</h3>
                 @if (selectedUser != null)
                 {
-                    <EditForm Model="selectedUser" OnValidSubmit="HandleSave">
-                        <DataAnnotationsValidator />
-                        <div class="mb-3">
-                            <label class="form-label">Id</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Id" disabled />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">User Name</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.UserName" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Email" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Role</label>
-                            <InputSelect class="form-select form-select-sm" @bind-Value="selectedUser.Role">
-                                <option value="">None</option>
-                                <option value="@UserRole.Reader">@UserRole.Reader</option>
-                                <option value="@UserRole.Contributor">@UserRole.Contributor</option>
-                                <option value="@UserRole.Admin">@UserRole.Admin</option>
-                            </InputSelect>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                        </div>
-                    </EditForm>
-                    <hr />
-                    <h5>Change Password</h5>
-                    <EditForm Model="passwordModel" OnValidSubmit="HandlePasswordChange">
-                        <DataAnnotationsValidator />
-                        <div class="mb-3">
-                            <label class="form-label">New Password</label>
-                            <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.NewPassword" />
-                            <ValidationMessage For="() => passwordModel.NewPassword" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Confirm Password</label>
-                            <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.ConfirmPassword" />
-                            <ValidationMessage For="() => passwordModel.ConfirmPassword" />
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-secondary btn-sm">Change Password</button>
-                        </div>
-                    </EditForm>
+                    <div class="mb-3 user-info">
+                        <div class="user-name">@selectedUser.UserName</div>
+                        <div class="user-id"><em>@selectedUser.Id</em></div>
+                    </div>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "profile" ? "active" : "")" @onclick='() => activeTab = "profile"' type="button" role="tab">User Profile</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "security" ? "active" : "")" @onclick='() => activeTab = "security"' type="button" role="tab">Security</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        @if (activeTab == "profile")
+                        {
+                            <div class="tab-pane active">
+                                <EditForm Model="selectedUser" OnValidSubmit="HandleSave">
+                                    <DataAnnotationsValidator />
+                                    <div class="mb-3">
+                                        <label class="form-label">User Name</label>
+                                        <InputText class="form-control form-control-sm" @bind-Value="selectedUser.UserName" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Email" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Role</label>
+                                        <InputSelect class="form-select form-select-sm" @bind-Value="selectedUser.Role">
+                                            <option value="">None</option>
+                                            <option value="@UserRole.Reader">@UserRole.Reader</option>
+                                            <option value="@UserRole.Contributor">@UserRole.Contributor</option>
+                                            <option value="@UserRole.Admin">@UserRole.Admin</option>
+                                        </InputSelect>
+                                    </div>
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        }
+
+                        @if (activeTab == "security")
+                        {
+                            <div class="tab-pane active">
+                                <h5>Change Password</h5>
+                                <EditForm Model="passwordModel" OnValidSubmit="HandlePasswordChange">
+                                    <DataAnnotationsValidator />
+                                    <div class="mb-3">
+                                        <label class="form-label">New Password</label>
+                                        <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.NewPassword" />
+                                        <ValidationMessage For="() => passwordModel.NewPassword" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm Password</label>
+                                        <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.ConfirmPassword" />
+                                        <ValidationMessage For="() => passwordModel.ConfirmPassword" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary btn-sm">Change Password</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        }
+                    </div>
                 }
             </div>
         </div>
@@ -128,6 +149,7 @@ else
     private UserDto? originalUser;
     private PasswordModel passwordModel = new();
     private bool isAdmin = false;
+    private string activeTab = "profile";
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,6 +207,7 @@ else
         };
         originalUser = user;
         passwordModel = new PasswordModel();
+        activeTab = "profile";
     }
 
     private async Task HandleSave()

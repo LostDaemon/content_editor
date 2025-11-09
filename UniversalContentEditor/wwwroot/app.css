@@ -1,27 +1,104 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #002028;
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: #fd7e14;
+}
+
+a:hover, .btn-link:hover {
+    color: #e66a00;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+}
+
+.btn-primary:hover {
+    background-color: #e66a00;
+    border-color: #e66a00;
+    color: #fff;
+}
+
+.btn-primary:active,
+.btn-primary:focus {
+    background-color: #cc5a00;
+    border-color: #cc5a00;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(253, 106, 2, 0.5);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(253, 106, 2, 0.5);
 }
 
 .content {
     padding-top: 1.1rem;
 }
 
+h1 {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
 h1:focus {
     outline: none;
+}
+
+h3 {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
+.table thead th {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid rgba(253, 106, 2, 0.2);
+}
+
+.nav-tabs .nav-link {
+    color: #839496;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    padding: 0.5rem 1rem;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #fd7e14;
+    border-bottom-color: rgba(253, 106, 2, 0.3);
+}
+
+.nav-tabs .nav-link.active {
+    color: #fd7e14;
+    border-bottom-color: #fd7e14;
+    background: transparent;
+}
+
+.form-control,
+.form-select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea {
+    background-color: #33555e !important;
+    color: #839496 !important;
+    border-color: rgba(253, 106, 2, 0.3) !important;
+}
+
+.form-control::placeholder,
+.form-select::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #93a1a1 !important;
+    opacity: 1;
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -48,4 +125,10 @@ h1:focus {
 
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
+}
+
+.content-box {
+    background-color: #002b36 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(253, 106, 2, 0.2) !important;
 }

@@ -1,11 +1,22 @@
 ﻿@inherits LayoutComponentBase
 @layout AccountLayout
+@using Microsoft.AspNetCore.Identity
+@using UniversalContentEditor.Data
+@using UniversalContentEditor.Components.Account
+@inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
 
 <h1>Manage your account</h1>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
+<div class="manage-account-container content-box">
+    <h3>AccountSettings</h3>
+    @if (user != null && !string.IsNullOrEmpty(userName))
+    {
+        <div class="mb-3 user-info">
+            <div class="user-name">@userName</div>
+            <div class="user-id"><em>@user.Id</em></div>
+        </div>
+    }
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
             <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">
@@ -13,17 +24,32 @@
             </NavLink>
         </li>
         <li class="nav-item">
-            <NavLink class="nav-link" href="Account/Manage/Email">
-                Email
-            </NavLink>
-        </li>
-        <li class="nav-item">
             <NavLink class="nav-link" href="Account/Manage/ChangePassword">
-                Password
+                Security
             </NavLink>
         </li>
     </ul>
-    <div>
+    <div class="tab-content">
         @Body
     </div>
 </div>
+
+@code {
+    private ApplicationUser? user;
+    private string? userName;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (HttpContext != null && user == null)
+        {
+            user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+            if (user != null)
+            {
+                userName = await UserManager.GetUserNameAsync(user);
+            }
+        }
+    }
+}
