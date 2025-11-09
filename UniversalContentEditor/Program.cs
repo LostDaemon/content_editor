@@ -4,6 +4,8 @@ using MongoDB.Driver;
 using UniversalContentEditor.Components;
 using UniversalContentEditor.Components.Account;
 using UniversalContentEditor.Data;
+using UniversalContentEditor.Repositories;
+using UniversalContentEditor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,10 @@ var mongoDatabase = mongoClient.GetDatabase(databaseName);
 
 builder.Services.AddSingleton<IMongoDatabase>(mongoDatabase);
 builder.Services.AddSingleton<ApplicationDbContext>();
+
+builder.Services.AddScoped<IUserRepository>(provider =>
+    new UserRepository(provider.GetRequiredService<IMongoDatabase>(), collectionName));
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure Identity with MongoDB
 builder.Services.AddIdentityCore<ApplicationUser>(options =>

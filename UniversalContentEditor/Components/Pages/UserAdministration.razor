@@ -1,0 +1,235 @@
+@page "/admin/users"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using UniversalContentEditor.Components.Account
+@using UniversalContentEditor.Data
+@using UniversalContentEditor.Models
+@using UniversalContentEditor.Services
+@attribute [Authorize]
+@inject IUserService UserService
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>User Administration</PageTitle>
+
+@if (!isAdmin)
+{
+    <h1>Access Denied</h1>
+    <p>You must be an administrator to access this page.</p>
+}
+else
+{
+    <h1>User Administration</h1>
+
+    @if (users == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!users.Any())
+    {
+        <p><em>No users found.</em></p>
+    }
+    else
+    {
+    <div class="row">
+        <div class="col-md-9">
+            <h3>Users</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr @onclick="() => SelectUser(user)" style="cursor: pointer; @(selectedUser?.Id == user.Id ? "background-color: #e7f3ff;" : "")">
+                                <td>@user.Id</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div style="max-width: 300px;">
+                <h3>Edit User</h3>
+                @if (selectedUser != null)
+                {
+                    <EditForm Model="selectedUser" OnValidSubmit="HandleSave">
+                        <DataAnnotationsValidator />
+                        <div class="mb-3">
+                            <label class="form-label">Id</label>
+                            <InputText class="form-control" @bind-Value="selectedUser.Id" disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">User Name</label>
+                            <InputText class="form-control" @bind-Value="selectedUser.UserName" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="selectedUser.Email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <InputSelect class="form-select" @bind-Value="selectedUser.Role">
+                                <option value="">None</option>
+                                <option value="@UserRole.Reader">@UserRole.Reader</option>
+                                <option value="@UserRole.Contributor">@UserRole.Contributor</option>
+                                <option value="@UserRole.Admin">@UserRole.Admin</option>
+                            </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </EditForm>
+                    <hr />
+                    <h5>Change Password</h5>
+                    <EditForm Model="passwordModel" OnValidSubmit="HandlePasswordChange">
+                        <DataAnnotationsValidator />
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <InputText type="password" class="form-control" @bind-Value="passwordModel.NewPassword" />
+                            <ValidationMessage For="() => passwordModel.NewPassword" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <InputText type="password" class="form-control" @bind-Value="passwordModel.ConfirmPassword" />
+                            <ValidationMessage For="() => passwordModel.ConfirmPassword" />
+                        </div>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-secondary">Change Password</button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+    }
+}
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private IEnumerable<UserDto>? users;
+    private UserDto? selectedUser;
+    private UserDto? originalUser;
+    private PasswordModel passwordModel = new();
+    private bool isAdmin = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApplicationUser? user = null;
+
+        if (HttpContext != null)
+        {
+            user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        }
+        else
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState?.User?.Identity?.IsAuthenticated == true)
+            {
+                user = await UserManager.GetUserAsync(authState.User);
+            }
+        }
+
+        if (user != null)
+        {
+            isAdmin = !string.IsNullOrEmpty(user.Role) && 
+                     string.Equals(user.Role, UserRole.Admin, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (!isAdmin)
+        {
+            if (HttpContext != null)
+            {
+                RedirectManager.RedirectTo("Account/AccessDenied");
+            }
+            return;
+        }
+
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UserService.GetAllUsersAsync();
+        if (users != null && users.Any() && selectedUser == null)
+        {
+            SelectUser(users.First());
+        }
+        StateHasChanged();
+    }
+
+    private void SelectUser(UserDto user)
+    {
+        selectedUser = new UserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Role = user.Role
+        };
+        originalUser = user;
+        passwordModel = new PasswordModel();
+    }
+
+    private async Task HandleSave()
+    {
+        if (selectedUser != null)
+        {
+            var success = await UserService.UpdateUserAsync(selectedUser);
+            if (success)
+            {
+                var selectedId = selectedUser.Id;
+                users = await UserService.GetAllUsersAsync();
+                if (users != null)
+                {
+                    var updatedUser = users.FirstOrDefault(u => u.Id == selectedId);
+                    if (updatedUser != null)
+                    {
+                        SelectUser(updatedUser);
+                    }
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task HandlePasswordChange()
+    {
+        if (selectedUser != null && !string.IsNullOrEmpty(passwordModel.NewPassword))
+        {
+            var success = await UserService.ChangePasswordAsync(selectedUser.Id, passwordModel.NewPassword);
+            if (success)
+            {
+                passwordModel = new PasswordModel();
+                StateHasChanged();
+            }
+        }
+    }
+
+    private class PasswordModel
+    {
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string? NewPassword { get; set; }
+
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        public string? ConfirmPassword { get; set; }
+    }
+}
