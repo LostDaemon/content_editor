@@ -1,0 +1,82 @@
+﻿@page "/Account/Manage/Email"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using Editor.Domain.Entities
+
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<PageTitle>Manage email</PageTitle>
+
+<StatusMessage Message="@message"/>
+<EditForm Model="Input" FormName="change-email" OnValidSubmit="OnValidSubmitAsync" method="post">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" role="alert" />
+    <div class="form-floating mb-3">
+        <input type="text" value="@email" class="form-control" disabled />
+        <label for="email" class="form-label">Current Email</label>
+    </div>
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" />
+        <label for="new-email" class="form-label">New email</label>
+        <ValidationMessage For="() => Input.NewEmail" class="text-danger" />
+    </div>
+    <button type="submit" class="w-100 btn btn-primary btn-sm">Change email</button>
+</EditForm>
+
+@code {
+    private string? message;
+    private ApplicationUser user = default!;
+    private string? email;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm(FormName = "change-email")]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        email = await UserManager.GetEmailAsync(user);
+
+        Input.NewEmail ??= email;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.NewEmail is null || Input.NewEmail == email)
+        {
+            message = "Your email is unchanged.";
+            return;
+        }
+
+        var setEmailResult = await UserManager.SetEmailAsync(user, Input.NewEmail);
+        if (!setEmailResult.Succeeded)
+        {
+            message = $"Error: {string.Join(",", setEmailResult.Errors.Select(error => error.Description))}";
+            return;
+        }
+
+        var setUserNameResult = await UserManager.SetUserNameAsync(user, Input.NewEmail);
+        if (!setUserNameResult.Succeeded)
+        {
+            message = $"Error: {string.Join(",", setUserNameResult.Errors.Select(error => error.Description))}";
+            return;
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        RedirectManager.RedirectToCurrentPageWithStatus("Your email has been changed", HttpContext);
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "New email")]
+        public string? NewEmail { get; set; }
+    }
+}

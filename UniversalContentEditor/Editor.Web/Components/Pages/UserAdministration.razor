@@ -1,0 +1,259 @@
+@page "/admin/users"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Editor.Web.Components.Account
+@using Editor.Domain.Entities
+@using Editor.Application.Dto
+@using Editor.Application.Interfaces
+@using Editor.Domain.Constants
+@attribute [Authorize]
+@inject IUserService UserService
+@inject UserManager<ApplicationUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject IdentityRedirectManager RedirectManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>User Administration</PageTitle>
+
+@if (!isAdmin)
+{
+    <h1>Access Denied</h1>
+    <p>You must be an administrator to access this page.</p>
+}
+else
+{
+    <h1>User Administration</h1>
+
+    @if (users == null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else if (!users.Any())
+    {
+        <p><em>No users found.</em></p>
+    }
+    else
+    {
+    <div class="row user-admin-container g-0">
+        <div class="col table-section content-box">
+            <h3>Users</h3>
+            <div class="table-responsive table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>User Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr @onclick="() => SelectUser(user)" class="table-row @(selectedUser?.Id == user.Id ? "table-row-selected" : "")">
+                                <td>@user.Id</td>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>@user.Role</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-auto edit-container">
+            <div class="content-box">
+                <h3>Edit User</h3>
+                @if (selectedUser != null)
+                {
+                    <div class="mb-3 user-info">
+                        <div class="user-name">@selectedUser.UserName</div>
+                        <div class="user-id"><em>@selectedUser.Id</em></div>
+                    </div>
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "profile" ? "active" : "")" @onclick='() => activeTab = "profile"' type="button" role="tab">User Profile</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "security" ? "active" : "")" @onclick='() => activeTab = "security"' type="button" role="tab">Security</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        @if (activeTab == "profile")
+                        {
+                            <div class="tab-pane active">
+                                <EditForm Model="selectedUser" OnValidSubmit="HandleSave">
+                                    <DataAnnotationsValidator />
+                                    <div class="form-floating mb-3">
+                                        <InputText class="form-control" @bind-Value="selectedUser.UserName" />
+                                        <label for="user-name" class="form-label">User Name</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <InputText class="form-control" @bind-Value="selectedUser.Email" />
+                                        <label for="email" class="form-label">Email</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Role</label>
+                                        <InputSelect class="form-select" @bind-Value="selectedUser.Role">
+                                            <option value="">None</option>
+                                            <option value="@UserRole.Reader">@UserRole.Reader</option>
+                                            <option value="@UserRole.Contributor">@UserRole.Contributor</option>
+                                            <option value="@UserRole.Admin">@UserRole.Admin</option>
+                                        </InputSelect>
+                                    </div>
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        }
+
+                        @if (activeTab == "security")
+                        {
+                            <div class="tab-pane active">
+                                <h5>Change Password</h5>
+                                <EditForm Model="passwordModel" OnValidSubmit="HandlePasswordChange">
+                                    <DataAnnotationsValidator />
+                                    <div class="form-floating mb-3">
+                                        <InputText type="password" class="form-control" @bind-Value="passwordModel.NewPassword" />
+                                        <label for="new-password" class="form-label">New Password</label>
+                                        <ValidationMessage For="() => passwordModel.NewPassword" />
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <InputText type="password" class="form-control" @bind-Value="passwordModel.ConfirmPassword" />
+                                        <label for="confirm-password" class="form-label">Confirm Password</label>
+                                        <ValidationMessage For="() => passwordModel.ConfirmPassword" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary btn-sm">Change Password</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    }
+}
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private IEnumerable<Editor.Application.Dto.UserDto>? users;
+    private Editor.Application.Dto.UserDto? selectedUser;
+    private Editor.Application.Dto.UserDto? originalUser;
+    private PasswordModel passwordModel = new();
+    private bool isAdmin = false;
+    private string activeTab = "profile";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApplicationUser? user = null;
+
+        if (HttpContext != null)
+        {
+            user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        }
+        else
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (authState?.User?.Identity?.IsAuthenticated == true)
+            {
+                user = await UserManager.GetUserAsync(authState.User);
+            }
+        }
+
+        if (user != null)
+        {
+            isAdmin = !string.IsNullOrEmpty(user.Role) && 
+                     string.Equals(user.Role, UserRole.Admin, StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (!isAdmin)
+        {
+            if (HttpContext != null)
+            {
+                RedirectManager.RedirectTo("Account/AccessDenied");
+            }
+            return;
+        }
+
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UserService.GetAllUsersAsync();
+        if (users != null && users.Any() && selectedUser == null)
+        {
+            SelectUser(users.First());
+        }
+        StateHasChanged();
+    }
+
+    private void SelectUser(Editor.Application.Dto.UserDto user)
+    {
+        selectedUser = new Editor.Application.Dto.UserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            Role = user.Role
+        };
+        originalUser = user;
+        passwordModel = new PasswordModel();
+        activeTab = "profile";
+    }
+
+    private async Task HandleSave()
+    {
+        if (selectedUser != null)
+        {
+            var success = await UserService.UpdateUserAsync(selectedUser);
+            if (success)
+            {
+                var selectedId = selectedUser.Id;
+                users = await UserService.GetAllUsersAsync();
+                if (users != null)
+                {
+                    var updatedUser = users.FirstOrDefault(u => u.Id == selectedId);
+                    if (updatedUser != null)
+                    {
+                        SelectUser(updatedUser);
+                    }
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task HandlePasswordChange()
+    {
+        if (selectedUser != null && !string.IsNullOrEmpty(passwordModel.NewPassword))
+        {
+            var success = await UserService.ChangePasswordAsync(selectedUser.Id, passwordModel.NewPassword);
+            if (success)
+            {
+                passwordModel = new PasswordModel();
+                StateHasChanged();
+            }
+        }
+    }
+
+    private class PasswordModel
+    {
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        public string? NewPassword { get; set; }
+
+        [DataType(DataType.Password)]
+        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        public string? ConfirmPassword { get; set; }
+    }
+}

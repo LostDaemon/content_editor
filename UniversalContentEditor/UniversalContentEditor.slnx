@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="UniversalContentEditor.csproj" />
+  <Project Path="Editor.Application/Editor.Application.csproj" />
+  <Project Path="Editor.Domain/Editor.Domain.csproj" />
+  <Project Path="Editor.Infrastructure/Editor.Infrastructure.csproj" />
+  <Project Path="Editor.Web/Editor.Web.csproj" />
 </Solution>
