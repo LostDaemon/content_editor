@@ -36,7 +36,7 @@ else
     else
     {
     <div class="row user-admin-container g-0">
-        <div class="col table-section">
+        <div class="col table-section content-box">
             <h3>Users</h3>
             <div class="table-responsive table-container">
                 <table class="table">
@@ -63,7 +63,7 @@ else
             </div>
         </div>
         <div class="col-auto edit-container">
-            <div>
+            <div class="content-box">
                 <h3>Edit User</h3>
                 @if (selectedUser != null)
                 {
@@ -86,17 +86,17 @@ else
                             <div class="tab-pane active">
                                 <EditForm Model="selectedUser" OnValidSubmit="HandleSave">
                                     <DataAnnotationsValidator />
-                                    <div class="mb-3">
-                                        <label class="form-label">User Name</label>
-                                        <InputText class="form-control form-control-sm" @bind-Value="selectedUser.UserName" />
+                                    <div class="form-floating mb-3">
+                                        <InputText class="form-control" @bind-Value="selectedUser.UserName" />
+                                        <label for="user-name" class="form-label">User Name</label>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Email</label>
-                                        <InputText class="form-control form-control-sm" @bind-Value="selectedUser.Email" />
+                                    <div class="form-floating mb-3">
+                                        <InputText class="form-control" @bind-Value="selectedUser.Email" />
+                                        <label for="email" class="form-label">Email</label>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Role</label>
-                                        <InputSelect class="form-select form-select-sm" @bind-Value="selectedUser.Role">
+                                        <InputSelect class="form-select" @bind-Value="selectedUser.Role">
                                             <option value="">None</option>
                                             <option value="@UserRole.Reader">@UserRole.Reader</option>
                                             <option value="@UserRole.Contributor">@UserRole.Contributor</option>
@@ -116,14 +116,14 @@ else
                                 <h5>Change Password</h5>
                                 <EditForm Model="passwordModel" OnValidSubmit="HandlePasswordChange">
                                     <DataAnnotationsValidator />
-                                    <div class="mb-3">
-                                        <label class="form-label">New Password</label>
-                                        <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.NewPassword" />
+                                    <div class="form-floating mb-3">
+                                        <InputText type="password" class="form-control" @bind-Value="passwordModel.NewPassword" />
+                                        <label for="new-password" class="form-label">New Password</label>
                                         <ValidationMessage For="() => passwordModel.NewPassword" />
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Confirm Password</label>
-                                        <InputText type="password" class="form-control form-control-sm" @bind-Value="passwordModel.ConfirmPassword" />
+                                    <div class="form-floating mb-3">
+                                        <InputText type="password" class="form-control" @bind-Value="passwordModel.ConfirmPassword" />
+                                        <label for="confirm-password" class="form-label">Confirm Password</label>
                                         <ValidationMessage For="() => passwordModel.ConfirmPassword" />
                                     </div>
                                     <div class="mb-3">

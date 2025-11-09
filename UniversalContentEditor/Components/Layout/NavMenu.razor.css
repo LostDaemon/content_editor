@@ -70,6 +70,7 @@
 .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
+    width: 100%;
 }
 
     .nav-item:first-of-type {
@@ -84,16 +85,19 @@
         color: #d7d7d7;
         background: none;
         border: none;
-        border-radius: 4px;
+        border-radius: 0;
         height: 3rem;
         display: flex;
         align-items: center;
         line-height: 3rem;
         width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 
 .nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
+    background-color: rgba(253, 106, 2, 0.1) !important;
+    border-left: 3px solid #fd7e14;
     color: white;
 }
 
